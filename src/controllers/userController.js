@@ -74,7 +74,7 @@ router.post('/login', bruteforce.prevent, async (req, res) => {
             res.status(400).json({ message: "Invalid email or password" });
             return
         }
-        const token = jwt.sign({ email: user.email, employee: user.employee  }, process.env.JWT_SECRET || "", { expiresIn: "1h" });
+        const token = jwt.sign({ email: user.email, employee: user.employee  }, process.env.JWT_SECRET || "", { expiresIn: "5h" });
         res.status(201).json({ token: token });
     } catch (error) {
         console.error(error);
@@ -90,7 +90,12 @@ router.get('/me', authMiddleware, async (req, res) => {
             return
         }
         user.password = undefined;
-        res.status(200).json({ user: user });
+        res.status(200).json({ user: {
+            first_name: user.first_name,
+            last_name: user.last_name,
+            email: user.email,
+            employee: user.employee
+        } });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });

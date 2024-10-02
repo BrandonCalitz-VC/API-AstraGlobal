@@ -22,7 +22,7 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
-app.use(cors());
+app.use(cors({origin: 'http://localhost:3000'}));
 app.use(express.json());
 
 app.use("/api/user", userController);
