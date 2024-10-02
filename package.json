@@ -1,18 +1,21 @@
 {
-  "name": "api-astra-global",
+  "name": "api-astraglobal",
   "version": "1.0.0",
-  "description": "Test",
-  "main": "index.ts",
+  "description": "Astra Global API is a RESTful API that provides access to the Astra Global Database.",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "@types/express": "^5.0.0",
-    "@types/node": "^22.7.4",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.21.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.6.2"
+    "express-brute": "^1.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.7.0",
+    "zod": "^3.23.8"
   }
 }
