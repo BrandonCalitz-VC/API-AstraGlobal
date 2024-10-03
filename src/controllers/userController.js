@@ -16,6 +16,9 @@ const registerSchema = z.object({
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 
         "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character."
     ),
+    national_id: z.string().min(1),
+    account_number: z.string().min(1),
+    bank: z.string().min(1),
 });
 router.post('/register', async (req, res) => {
     try {
@@ -37,7 +40,10 @@ router.post('/register', async (req, res) => {
             first_name: request.first_name,
             last_name: request.last_name,
             email: request.email,
-            password: await bcrypt.hash(request.password, 10)
+            password: await bcrypt.hash(request.password, 10),
+            national_id: request.national_id,
+            account_number: request.account_number,
+            bank: request.bank
         });
         const token = jwt.sign({ email: user.email, employee: user.employee  }, process.env.JWT_SECRET || "", { expiresIn: "1h" });
         res.status(201).json({ token: token });
@@ -96,6 +102,16 @@ router.get('/me', authMiddleware, async (req, res) => {
             email: user.email,
             employee: user.employee
         } });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+router.get('/emailTaken', async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.query.email });
+        res.status(200).json({ taken: user ? true : false });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });

@@ -14,7 +14,7 @@ const options = {
   cert: fs.readFileSync(resolve(__dirname, "../keys/certificate.pem"))
 };
 
-const port = process.env.PORT || 2323;
+const port = process.env.PORT || 3001;
 const app = express();
 
 mongoose
@@ -22,7 +22,7 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
-app.use(cors({origin: 'http://localhost:3000'}));
+app.use(cors({origin: 'http://localhost:5173'}));
 app.use(express.json());
 
 app.use("/api/user", userController);
