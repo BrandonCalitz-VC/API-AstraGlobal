@@ -4,7 +4,7 @@
   "description": "Astra Global API is a RESTful API that provides access to the Astra Global Database.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node src/server.js"
   },
   "author": "",
   "license": "ISC",
