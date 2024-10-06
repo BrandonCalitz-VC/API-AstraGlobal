@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const z = require("zod");
-const bruteforce  = require("../clients/BruteClient");
+const {bruteforce}  = require("../clients/BruteClient");
 const authMiddleware = require("../middleware/authMiddleware");
 const {User} = require("../db/models/user");
 const bcrypt = require("bcrypt");
@@ -97,6 +97,7 @@ router.get('/me', authMiddleware, async (req, res) => {
         }
         user.password = undefined;
         res.status(200).json({ user: {
+            id: user.id,
             first_name: user.first_name,
             last_name: user.last_name,
             email: user.email,
