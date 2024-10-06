@@ -109,9 +109,18 @@ router.get('/me', authMiddleware, async (req, res) => {
     }
 });
 
+const emailTakenSchema = z.object({
+    email: z.string().email(),
+});
 router.get('/emailTaken', async (req, res) => {
     try {
-        const user = await User.findOne({ email: req.query.email });
+        const parsed = emailTakenSchema.safeParse(req.query);
+        if (!parsed.success) {
+            res.status(400).json({ message: 'Invalid Body', errors: parsed.error.errors });
+            return
+        }
+        const request = parsed.data;
+        const user = await User.findOne({ email: request.email });
         res.status(200).json({ taken: user ? true : false });
     } catch (error) {
         console.error(error);
