@@ -28,7 +28,7 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
-app.use(cors({origin: 'http://localhost:5173'})); //Save
+app.use(cors({origin: 'https://localhost:5173'})); //Save
 app.use(express.json());
 
 
