@@ -6,6 +6,7 @@ const {User} = require("../db/models/user");
 const {Transaction} = require("../db/models/transaction");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const transaction = require("../db/models/transaction");
 
 const router = Router();
 
@@ -19,6 +20,10 @@ const paySchema = z.object({
   provider: z.string(),
   value_1: z.string().optional(),
   value_2: z.string().optional(),
+});
+
+const txnSchema = z.object({
+  transaction_id: z.string().min(1),
 });
 router.post('/', authMiddleware, async (req, res) => {
     try {
@@ -46,11 +51,61 @@ router.post('/', authMiddleware, async (req, res) => {
     }
 });
 
+router.post('/approve', authMiddleware, async (req, res) => {
+    try {
+        const parsed = txnSchema.safeParse(req.body);
+        if (!parsed.success) {
+            res.status(400).json({ message: 'Invalid Body', errors: parsed.error.errors });
+            return
+        }
+        const request = parsed.data;
+        const transaction = await Transaction.findOne({ _id: request.transaction_id });
+        if(!transaction){
+            res.status(400).json({ message: 'Invalid transaction id' });
+            return
+        }
+        transaction.status = 'approved';
+        await transaction.save();
+        res.status(201).json({ message: "Transaction approved successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+router.post('/decline', authMiddleware, async (req, res) => {
+    try {
+        const parsed = txnSchema.safeParse(req.body);
+        if (!parsed.success) {
+            res.status(400).json({ message: 'Invalid Body', errors: parsed.error.errors });
+            return
+        }
+        const request = parsed.data;
+        const transaction = await Transaction.findOne({ _id: request.transaction_id });
+        if(!transaction){
+            res.status(400).json({ message: 'Invalid transaction id' });
+            return
+        }
+        transaction.status = 'declined';
+        await transaction.save();
+        res.status(201).json({ message: "Transaction declined successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
 
 router.get('/', authMiddleware, async (req, res) => {
     try {
         const user = await User.findOne({ email: req.user.email });
-        const transactions = await Transaction.find({ user: user._id });
+        const transaction = []
+        if(user.employee){
+            transactions = await Transaction.find({});
+        }else{
+            transactions = await Transaction.find({ user: user._id });
+        }
+
         res.status(200).json({ transactions:transactions.map(t => ({
             id: t._id,
             amount: t.amount,
