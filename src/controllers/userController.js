@@ -59,6 +59,7 @@ const loginSchema = z.object({
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 
         "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character."
     ),
+    employee: z.boolean().optional(),
 });
 
 router.post('/login', bruteforce.prevent, async (req, res) => {
@@ -80,6 +81,12 @@ router.post('/login', bruteforce.prevent, async (req, res) => {
             res.status(400).json({ message: "Invalid email or password" });
             return
         }
+
+        if(request.employee != user.employee) {
+            res.status(400).json({ message: "User is not an employee" });
+            return
+        }
+        
         const token = jwt.sign({ email: user.email, employee: user.employee  }, process.env.JWT_SECRET || "", { expiresIn: "5h" });
         res.status(201).json({ token: token });
     } catch (error) {
