@@ -149,4 +149,52 @@ router.get("/emailTaken", async (req, res) => {
   }
 });
 
+const employeeCreateSchema = z.object({
+  first_name: z.string().min(3),
+  last_name: z.string().min(3),
+  email: z.string().email(),
+  password: z
+    .string()
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character."
+    ),
+  national_id: z.string().min(1),
+});
+router.post('/employee', async (req, res) => {
+  try {
+    const parsed = employeeCreateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res
+        .status(400)
+        .json({ message: "Invalid Body", errors: parsed.error.errors });
+      return;
+    }
+    const request = parsed.data;
+
+    const result = await User.find({ email: request.email });
+
+    if (result.length > 0) {
+      res.status(400).json({ message: "Email already exists" });
+      return;
+    }
+
+    const user = await User.create({
+      first_name: request.first_name,
+      last_name: request.last_name,
+      email: request.email,
+      password: await bcrypt.hash(request.password, 10),
+      national_id: request.national_id,
+      account_number: "000000000",
+      bank: "FNB",
+      employee: true,
+    });
+    res.status(201).json();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
 module.exports = router;
